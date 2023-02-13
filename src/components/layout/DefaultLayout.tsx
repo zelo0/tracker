@@ -3,13 +3,13 @@ import type { ReactElement } from 'react';
 import AddingModal from '../AddingModal';
 import variables from '@/styles/variables.module.scss';
 import { useSession, signOut, signIn } from 'next-auth/react';
-import { useRouter } from 'next/router';
+import DefaultSider from '../DefaultSider';
+import Link from 'next/link';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Footer } = Layout;
 
 export default function DefaultLayout({ children }: { children: ReactElement }) {
   const { data: session, status } = useSession();
-  const router = useRouter();
   
 
   const unauthItems: MenuProps['items'] = [
@@ -33,31 +33,34 @@ export default function DefaultLayout({ children }: { children: ReactElement }) 
   return (
     <Layout className='height-100'> 
       <Header  style={{ position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button
-          type='text'
-          style={{ color: variables.primaryColor }}
-          size='large'
-        >
-          <div onClick={() => {router.push('/')}}>가격 추적기</div>
-        </Button>
+        <Link href='/'>
+          <Button
+            type='text'
+            style={{ color: variables.primaryColor }}
+            size='large'
+          >
+            가격 추적기
+          </Button>
+        </Link>
         <Menu 
           disabledOverflow
           mode='horizontal'
           theme='dark'
           items={session ? authItems : unauthItems}
         />
-
       </Header>
-      <Layout hasSider>
-        <Sider collapsible>사이드바</Sider>
 
+      <Layout hasSider>
+        <DefaultSider/>
         <Layout>
           <Content className='height-100 content-padding'>
             {children}
           </Content>
 
-          {/* state를 유지하기 위해 modal 사용 */}
-          <AddingModal/>
+          {/* state를 유지하기 위해 modal 사용
+            * 세션이 있을 때만 렌더링
+          */}
+          { session && <AddingModal/>}
           <Footer>by mapal</Footer>
         </Layout>
       </Layout>
