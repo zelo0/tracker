@@ -1,11 +1,14 @@
 import DefaultLayout from '@/components/layout/DefaultLayout';
 import '@/styles/global.scss'
 import type { AppProps } from 'next/app'
+import { SessionProvider } from 'next-auth/react'
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
-    <DefaultLayout>
-      <Component {...pageProps} />
-    </DefaultLayout>
+    <SessionProvider session={ session } >
+      <DefaultLayout>
+        <Component {...pageProps} />
+      </DefaultLayout>
+    </SessionProvider>
   );
 }
