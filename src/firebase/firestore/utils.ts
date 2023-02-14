@@ -1,18 +1,28 @@
 import { database } from 'firebase.config.js';
-import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs, DocumentData, doc, collectionGroup, getDoc, runTransaction } from 'firebase/firestore';
-import { PriceForm, PriceUpload, ProductForm, ProductUplaod, ProductUploads, StatisticUpload } from './types';
+import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs, DocumentData, doc, collectionGroup, getDoc, runTransaction, where } from 'firebase/firestore';
+import { PriceForm, PriceUpload, Product, ProductForm, ProductUplaod, ProductUploads, StatisticUpload } from './types';
 import type { DefaultSession } from 'next-auth'
-import { randomUUID } from 'crypto';
 
 
 // collections
 const productsRef = collection(database, 'products');
 
 // functions
+function guid() {
+  function _s4() {
+    return ((1 + Math.random()) * 0x10000 | 0).toString(16).substring(1);
+  }
+  return _s4() + _s4() + '-' + _s4() + '-' + _s4() + '-' + _s4() + '-' + _s4() + _s4() + _s4();
+}
+
 export async function addProduct(data: ProductForm, user: DefaultSession["user"]) {
+  if (!user) {
+    return;
+  }
+
   return addDoc(productsRef, {
     ...data, 
-    user,
+    userEmail: user.email,
     updatedTime: serverTimestamp()
   });
 }
@@ -50,7 +60,7 @@ export async function getRecentFivePrices() {
         return {
           id: document.id,
           goodName: productDoc.data().goodName,
-          entpId: document.data().entpId,
+          // entpId: document.data().entpId,
           goodId: document.data().goodId,
           goodPrice: document.data().goodPrice,
           date: document.data().date.toDate().toLocaleDateString(),
@@ -66,8 +76,8 @@ export async function getRecentFivePrices() {
 // 그 날짜의 통계 같이 업데이트
 export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
   const today = new Date();
-  const statDoc = doc(database, `products/${data.goodId}/statistics`, today.toUTCString());
-  const priceDoc = doc(database, `products/${data.goodId}/prices`, randomUUID());
+  const statDoc = doc(database, `products/${data.goodId}/statistics`, today.toLocaleDateString());
+  const priceDoc = doc(database, `products/${data.goodId}/prices`, guid());
 
   await runTransaction(database, async (transaction) => {
     // 가격 통계 업데이트
@@ -92,5 +102,20 @@ export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
       date: today,
     } as PriceUpload);
 
-  }).catch((e) => console.error(e));
+  });
+}
+
+export async function searchProduct(goodName: string) {
+  try {
+    const q = query(productsRef, where('goodName', '>=', goodName), where('goodName', '<=', `${goodName}\uf8ff`));
+    return getDocs(q)
+        .then(data => {
+          return data.docs.map((doc: DocumentData) => ({
+            id: doc.id,
+            ...doc.data(),
+          } as Product));
+        });
+  } catch(e) {
+    console.error(e);
+  }
 }

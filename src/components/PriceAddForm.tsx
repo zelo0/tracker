@@ -1,13 +1,13 @@
 
 
+import { searchProduct } from "@/firebase/firestore/utils";
 import { AutoComplete, Form, Input, InputNumber } from "antd";
 import { FormInstance, Rule } from "antd/es/form";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const { TextArea } = Input;
 
 export default function PriceAddForm({ form }: { form: FormInstance}) {
-
 
   const nameRule: Rule = {
     type: 'string',
@@ -26,11 +26,32 @@ export default function PriceAddForm({ form }: { form: FormInstance}) {
     message: '0 이상 100억 이하의 숫자를 작성해주세요'
   };
 
+  /* auto complete */
+  // state 변화로 rerendering 되는 지 확인
+  const [productOptions, setproductOptions] = useState<{label: string, value: string}[]>([]);
+  // const productOptions = useRef([]);
 
-  const onSearch = (searchText: string) => {
-
+  async function onSearch(searchText: string) {
+    // 처음에 모든 제품을 보여주는 건 리소스 낭비
+    if (!searchText) {
+      setproductOptions([]);
+      return;
+    }
+    const searchResults = await searchProduct(searchText);
+    if (!searchResults) {
+      setproductOptions([]);
+      return;
+    }
+    /* TODO: 선택해도 value 값을 보여준다. label을 보여주기를 원한다 */
+    setproductOptions(searchResults.map((product) => ({
+      label: product.goodName,
+      value: product.id,
+    })));
   }
 
+
+  // const onSelect = (value: string) => {
+  // };
 
 
   return (
@@ -44,26 +65,32 @@ export default function PriceAddForm({ form }: { form: FormInstance}) {
         scrollToFirstError={true}
       >
         <Form.Item 
-          label="제품명"
-          name="name"
+          label="제품"
+          name="goodId"
+          required
           rules={[nameRule]}
           hasFeedback
         >
-          <Input placeholder="와퍼" />
-
+          <AutoComplete
+            allowClear
+            options={productOptions}
+            // onSelect={onSelect}
+            onSearch={onSearch}
+            placeholder="제품 검색"
+          />
         </Form.Item>
 
         
 
         <Form.Item 
           label="가격"
-          name="price"
+          name="goodPrice"
           rules={[priceRule]}  
           hasFeedback
         >
           <InputNumber 
             style={{width: '100%'}}
-            placeholder="4500"
+            placeholder="낱개 가격"
             controls={false}
             formatter={(value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             parser={(value) => value!.replace(/(,*)/g, '')}
