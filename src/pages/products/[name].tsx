@@ -15,7 +15,7 @@ export default function ProductName() {
         <Col>
           <Card bordered={false}>
             <Statistic
-              loading
+              // loading
               title="최근 가격"            
               value={5000}
               suffix="원"
@@ -27,7 +27,7 @@ export default function ProductName() {
             bordered={false}
           >
             <Statistic
-              loading
+              // loading
               title="변화 추이"            
               value={13.256}
               valueStyle={{ color: 'red' }}
