@@ -2,7 +2,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, FloatButton, Form, Input, InputNumber, Modal, Typography, message, Tabs } from 'antd';
 import type { FormInstance, Rule } from 'antd/es/form';
 import { useState } from 'react';
-import { addProduct } from '@/firebase/firestore/utils'
+import { addPrice, addProduct } from '@/firebase/firestore/utils'
 import { useSession } from 'next-auth/react';
 import ProductAdd from './ProductAddForm';
 import ProductAddForm from './ProductAddForm';
@@ -14,6 +14,8 @@ const { Title } = Typography;
 export default function AddingModal() {
   const [open, setOpen] = useState(false);
   const [uploading, setuploading] = useState(false);
+  const [tab, setTab] = useState('');
+
   const { data: session, status } = useSession();
   const [messageApi, contextHolder] = message.useMessage();
   const [productForm] = Form.useForm();
@@ -28,13 +30,24 @@ export default function AddingModal() {
     if (uploading) {
       return;
     } 
+
+    let form: FormInstance;
+    if (tab === 'product') {
+      form = productForm;
+    } else {
+      form = priceForm;
+    }
     
     form
       .validateFields()
       .then(async (formData) => {
         setuploading(true);
-        // TODO: upload to firebase
-        await addProduct(formData, session?.user);
+
+        if (tab === 'product') {
+          await addProduct(formData, session?.user);
+        } else {
+          await addPrice(formData, session?.user);
+        }
 
         // after uploading
         messageApi.open({
@@ -96,6 +109,7 @@ export default function AddingModal() {
               children: <PriceAddForm form={priceForm} />
             }
           ]}
+          onChange={(activeKey) => {setTab(activeKey)}}
         />
       </Modal>
     </>
