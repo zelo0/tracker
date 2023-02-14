@@ -1,7 +1,6 @@
 export interface ProductForm {
-  name: string,
-  price: number,
-  review: string,
+  goodName: string,
+  description: string | undefined,
 }
 
 export interface Product extends ProductForm {
@@ -15,6 +14,7 @@ export type Products = Array<Product>
 export interface PriceForm {
   goodId: string,
   goodPrice: number,
+  review: string,
 }
 
 export interface Price {
@@ -24,6 +24,7 @@ export interface Price {
   goodId: string,
   goodPrice: number,
   goodName: string,
+  review: string,
 }
 
 export type Prices = Array<Price>;

@@ -35,7 +35,7 @@ export default function ProductAddForm({ form }: { form: FormInstance}) {
       >
         <Form.Item 
           label="제품명"
-          name="name"
+          name="goodName"
           rules={[nameRule]}
           hasFeedback
         >
