@@ -9,7 +9,7 @@ const { Meta } = Card;
 
 const PRICE_SYMBOL = '₩';
 
-export default function Test({ products, recentPrices }: { products: Products, recentPrices: Prices}) {
+export default function Index({ products, recentPrices }: { products: Products, recentPrices: Prices}) {
   const router = useRouter();
 
   const cardClickHandler = (goodName: string) => {

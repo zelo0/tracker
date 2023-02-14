@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 
 const { Title } = Typography;
 
-export default function productName() {
+export default function ProductName() {
   const router = useRouter();
   const { name } = router.query
   
