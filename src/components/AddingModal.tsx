@@ -4,7 +4,6 @@ import type { FormInstance, Rule } from 'antd/es/form';
 import { useState } from 'react';
 import { addPrice, addProduct } from '@/firebase/firestore/utils'
 import { useSession } from 'next-auth/react';
-import ProductAdd from './ProductAddForm';
 import ProductAddForm from './ProductAddForm';
 import PriceAddForm from './PriceAddForm';
  
@@ -54,8 +53,29 @@ export default function AddingModal() {
           type: 'success',
           content: '등록 완료',
         });
+        
+        if (tab === 'price') {
+          /* TODO:  브라우저에 환경 변수를 노출시키면 캡슐화 의미가 없어진다 */
+          // await하지 않고 백그라운드로 수행
+          fetch('api/revalidate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({  
+              secret: process.env.NEXT_PUBLIC_MY_SECRET_TOKEN,
+              goodId: form.getFieldValue('goodId')
+            })
+          }).then((response) => {
+            if (response.status === 200) {
+            }
+          });
+        }
+
         setuploading(false);
         form.resetFields();
+
+        
       })
       .catch((reason) => {
         // TODO: 예외 처리

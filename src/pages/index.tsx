@@ -12,10 +12,10 @@ const PRICE_SYMBOL = '₩';
 export default function Index({ products, recentPrices }: { products: Products, recentPrices: Prices}) {
   const router = useRouter();
 
-  const cardClickHandler = (goodName: string) => {
+  const cardClickHandler = (goodName: string, goodId: string) => {
     router.push({
       pathname: `/products/[name]`,
-      query: { name: goodName } 
+      query: { name: goodName, goodId } 
     });
   }
 
@@ -25,6 +25,7 @@ export default function Index({ products, recentPrices }: { products: Products, 
 
       <Space
         direction='horizontal'
+        wrap
       >
         {/* 최근 등록된 가격 5개 */}
         {
@@ -33,7 +34,7 @@ export default function Index({ products, recentPrices }: { products: Products, 
               hoverable
               bordered={false}
               key={price.id}
-              onClick={() => {cardClickHandler(price.goodName)}}
+              onClick={() => {cardClickHandler(price.goodName, price.goodId)}}
             >
               <Meta
                 title={price.goodName}
