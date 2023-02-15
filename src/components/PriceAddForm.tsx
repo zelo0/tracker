@@ -101,6 +101,7 @@ export default function PriceAddForm({ form }: { form: FormInstance}) {
         <Form.Item 
           label="리뷰"
           name="review"
+          initialValue={''}
         >
           <TextArea 
             style={{width: '100%'}}
@@ -109,7 +110,6 @@ export default function PriceAddForm({ form }: { form: FormInstance}) {
             showCount
             allowClear
             autoSize
-            defaultValue={''}
           />
         </Form.Item>
       </Form>

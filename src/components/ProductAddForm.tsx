@@ -45,6 +45,7 @@ export default function ProductAddForm({ form }: { form: FormInstance}) {
         <Form.Item 
           label="설명"
           name="description"
+          initialValue={''}
         >
           <TextArea 
             style={{width: '100%'}}
@@ -53,7 +54,6 @@ export default function ProductAddForm({ form }: { form: FormInstance}) {
             showCount
             allowClear
             autoSize
-            defaultValue={''}
           />
         </Form.Item>
       </Form>
