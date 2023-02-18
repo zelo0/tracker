@@ -14,8 +14,8 @@ export default function Index({ products, recentPrices }: { products: Products, 
 
   const cardClickHandler = (goodName: string, goodId: string) => {
     router.push({
-      pathname: `/products/[name]`,
-      query: { name: goodName, goodId } 
+      pathname: `/products/[id]`,
+      query: { id: goodId } 
     });
   }
 

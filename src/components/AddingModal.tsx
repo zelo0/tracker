@@ -57,7 +57,7 @@ export default function AddingModal() {
         if (tab === 'price') {
           /* TODO:  브라우저에 환경 변수를 노출시키면 캡슐화 의미가 없어진다 */
           // await하지 않고 백그라운드로 수행
-          fetch('api/revalidate', {
+          fetch('/api/revalidate', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

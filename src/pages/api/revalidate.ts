@@ -30,6 +30,6 @@ export default async function handler(
     await res.revalidate(`/products/${body.goodId}`);
     return res.status(200).json({ message: 'success to revalidate' });
   } catch (err) {
-    return res.status(500).json({ message: 'error while invalidating' }); 
+    return res.status(500).json({ message: 'error while revalidating' }); 
   }
 }
