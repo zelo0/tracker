@@ -15,6 +15,7 @@ function guid() {
   return _s4() + _s4() + '-' + _s4() + '-' + _s4() + '-' + _s4() + '-' + _s4() + _s4() + _s4();
 }
 
+/* TODO: name 중복 체크 */
 export async function addProduct(data: ProductForm, user: DefaultSession["user"]) {
   if (!user) {
     return;
@@ -75,6 +76,10 @@ export async function getRecentFivePrices() {
 
 // 그 날짜의 통계 같이 업데이트
 export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
+  if (!user) {
+    return;
+  }
+
   const today = new Date();
   const statDoc = doc(database, `products/${data.goodId}/statistics`, today.toLocaleDateString());
   const priceDoc = doc(database, `products/${data.goodId}/prices`, guid());
@@ -88,18 +93,18 @@ export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
       minPrice = Math.min(statSnap.data().minPrice, data.goodPrice);
       maxPrice = Math.max(statSnap.data().maxPrice, data.goodPrice);
     }
-
     transaction.set(statDoc, {
       goodId: data.goodId,
       date: today,
       minPrice,
-      maxPrice
+      maxPrice,
     } as StatisticUpload)
 
     // 가격 데이터 추가 
     transaction.set(priceDoc, {
       ...data,
       date: today,
+      userEmail: user.email,
     } as PriceUpload);
 
   });
@@ -110,6 +115,9 @@ export async function searchProduct(goodName: string) {
     const q = query(productsRef, where('goodName', '>=', goodName), where('goodName', '<=', `${goodName}\uf8ff`));
     return getDocs(q)
         .then(data => {
+          if (!data) {
+            return null;
+          }
           return data.docs.map((doc: DocumentData) => ({
             id: doc.id,
             ...doc.data(),
@@ -119,3 +127,36 @@ export async function searchProduct(goodName: string) {
     console.error(e);
   }
 }
+
+export async function getMinMaxPriceBetweenRange(goodId: string, fromDate: Date, toDate: Date) {
+  try {
+    const statRef = collection(database, `products/${goodId}/statistics`);
+    const q = query(statRef, where('date', '>=', fromDate), where('date', '<', toDate));
+    return getDocs(q)
+      .then(data => data.docs.reduce(
+        (acc, cur) => ({               
+          minPrice: Math.min(acc.minPrice, cur.data().minPrice),
+          maxPrice: Math.max(acc.maxPrice, cur.data().maxPrice),
+        }
+      ),
+        {
+          minPrice: Infinity,
+          maxPrice: 0,
+        }
+      ));
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+export async function getProductName(goodId: string) {
+  try {
+    const docRef = doc(database, `products/${goodId}`);
+    const data = await getDoc(docRef);
+    if (data.exists()) {
+      return data.get('goodName');
+    }
+  } catch(e) {
+    console.error(e);
+  }
+} 
