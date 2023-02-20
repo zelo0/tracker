@@ -1,8 +1,10 @@
-import { ArrowUpOutlined, DollarOutlined, LineChartOutlined } from '@ant-design/icons';
+import { AreaChartOutlined, ArrowDownOutlined, ArrowUpOutlined, DollarOutlined, LineChartOutlined, LineOutlined, RiseOutlined } from '@ant-design/icons';
 import { Card, Col, Row, Skeleton, Space, Statistic, Typography } from 'antd';
 import { useRouter } from 'next/router';
 import { GetStaticPaths,GetStaticProps } from 'next';
 import { getMinMaxPriceBetweenRange, getProductName } from '@/firebase/firestore/utils';
+import { Chart as ChartJS, CategoryScale, LineController, LineElement, registerables } from 'chart.js';
+import { Line } from 'react-chartjs-2';
 
 const { Title } = Typography;
 
@@ -12,22 +14,77 @@ type MinMaxPriceForMonth = Array<{
   maxPrice: number
 }>
 
+ChartJS.register(CategoryScale, LineController, LineElement, ...registerables);
+
 export default function ProductName({ name, minMaxPriceForMonth }: { name: string, minMaxPriceForMonth: MinMaxPriceForMonth}) {
   const router = useRouter();
 
   if (router.isFallback) {
     return (
       <>
-      <Space>
-        <Skeleton.Node active>
-          <DollarOutlined />
-        </Skeleton.Node>
-        <Skeleton.Node active>
-          <LineChartOutlined />
-        </Skeleton.Node>
-      </Space>
+        <Space 
+          direction='vertical'
+        >
+          <Skeleton 
+            active 
+            title 
+            paragraph={false}
+          />
+          <Space>
+            <Skeleton.Node active>
+              <DollarOutlined />
+            </Skeleton.Node>
+            <Skeleton.Node active>
+              <RiseOutlined />
+            </Skeleton.Node>
+          </Space>
+
+          <Row>
+            <Skeleton.Node 
+              active 
+            >
+              <AreaChartOutlined/>
+            </Skeleton.Node>
+          </Row>
+        </Space>
       </>
     )
+  }
+
+  /* chart.js */
+  const chartData = {
+    labels: minMaxPriceForMonth.map((data) => data.date),
+    datasets: [
+      {
+        label: "최저 가격",
+        data: minMaxPriceForMonth.map((data) => data.minPrice < Infinity ? data.minPrice : null),
+        fill: 1,
+      },
+      {
+        label: "최고 가격",
+        data: minMaxPriceForMonth.map((data) => data.maxPrice > 0 ? data.maxPrice : null),
+      },
+    ],
+  };
+
+  const chartOptions = {
+    scales: {
+      y: {
+        min: 0
+      }
+    },
+    interaction: {
+      mode: 'index',
+      intersect: false
+    },
+    responsive: true,
+  };
+
+  const lowestPriceThisMonth = minMaxPriceForMonth.at(-1)?.minPrice;
+  const lowestPriceLastMonth = minMaxPriceForMonth.at(-2)?.minPrice;
+  let priceDifferencePercent = 0;
+  if (lowestPriceThisMonth && lowestPriceLastMonth && lowestPriceLastMonth < Infinity) {
+    priceDifferencePercent = (lowestPriceThisMonth - lowestPriceLastMonth) / lowestPriceLastMonth * 100;
   }
 
   return (
@@ -38,8 +95,8 @@ export default function ProductName({ name, minMaxPriceForMonth }: { name: strin
           <Card bordered={false}>
             <Statistic
               // loading
-              title="최근 가격"            
-              value={5000}
+              title="이번달 최저가"   // 최근 가격         
+              value={lowestPriceThisMonth}
               suffix="원"
             />
           </Card>
@@ -51,15 +108,31 @@ export default function ProductName({ name, minMaxPriceForMonth }: { name: strin
             <Statistic
               // loading
               title="변화 추이"            
-              value={13.256}
-              valueStyle={{ color: 'red' }}
+              value={Math.abs(priceDifferencePercent)}
+              valueStyle={
+                (priceDifferencePercent > 0) 
+                ? { color: 'red' } 
+                : ((priceDifferencePercent === 0) ? { color: 'black'} : { color: 'blue' }
+              )}
               precision={2}
-              prefix={<ArrowUpOutlined/>}
+              prefix={
+                (priceDifferencePercent > 0) 
+                ? <ArrowUpOutlined/>
+                : ((priceDifferencePercent === 0) ? <LineOutlined/> : <ArrowDownOutlined/>
+              )}
               suffix="%"
             />
           </Card>
         </Col>
       </Row>
+
+      {/* label을 dataset을 구별하는 key로 사용 (re-render) */}
+      <div>
+        <Line
+          data={chartData}
+          options={chartOptions}
+        />
+      </div>
     </>
   );
 }
@@ -78,7 +151,10 @@ export const getStaticProps: GetStaticProps = async (ctx) =>{
   /* TODO: 예외 처리해서 보여주기 */
   if (!id) {
     return {
-      props: {}
+      props: {
+        name: null,
+        minMaxPriceForMonth: null,
+      }
     };
   }
   const name = await getProductName(id as string);
@@ -99,9 +175,19 @@ export const getStaticProps: GetStaticProps = async (ctx) =>{
     endTimeCursor = curMonth.getTime();
 
     const result = await getMinMaxPriceBetweenRange(id as string, new Date(startTimeCursor), new Date(endTimeCursor));
+    /* TODO: 엄밀한 처리 */
+    if (!result) {
+      return {
+        props: {
+          name,
+          minMaxPriceForMonth: null,
+        }
+      };
+    }
+
     console.log(result);
-    const minPrice = result?.minPrice;
-    const maxPrice = result?.maxPrice;
+    const minPrice = result.minPrice;
+    const maxPrice = result.maxPrice;
     
     const displayDate = new Date(startTimeCursor);
     minMaxPriceForMonth.push({
