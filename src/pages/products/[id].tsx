@@ -74,7 +74,7 @@ export default function ProductName({ name, minMaxPriceForMonth }: { name: strin
       }
     },
     interaction: {
-      mode: 'index',
+      mode: 'index' as 'index',
       intersect: false
     },
     responsive: true,
@@ -185,7 +185,6 @@ export const getStaticProps: GetStaticProps = async (ctx) =>{
       };
     }
 
-    console.log(result);
     const minPrice = result.minPrice;
     const maxPrice = result.maxPrice;
     
