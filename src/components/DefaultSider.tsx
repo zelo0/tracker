@@ -33,6 +33,7 @@ export default function DefaultSider() {
   return (
     <Sider 
       collapsible
+      collapsed
     >
       <Menu
         theme="dark"

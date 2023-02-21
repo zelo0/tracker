@@ -5,12 +5,15 @@ import variables from '@/styles/variables.module.scss';
 import { useSession, signOut, signIn } from 'next-auth/react';
 import DefaultSider from '../DefaultSider';
 import Link from 'next/link';
+import React from 'react';
 
 const { Header, Content, Footer } = Layout;
 
 export default function DefaultLayout({ children }: { children: ReactElement }) {
+  /* context의 status가 loading -> unauthorized로 바뀜 
+  * context를 사용하는 컴포넌트는 context가 바뀌면 re render
+  */
   const { data: session, status } = useSession();
-  
 
   const unauthItems: MenuProps['items'] = [
     {
@@ -51,7 +54,7 @@ export default function DefaultLayout({ children }: { children: ReactElement }) 
       </Header>
 
       <Layout hasSider>
-        <DefaultSider/>
+        {/* <DefaultSider/> */}
         <Layout>
           <Content className='height-100 content-padding'>
             {children}
@@ -61,7 +64,7 @@ export default function DefaultLayout({ children }: { children: ReactElement }) 
             * 세션이 있을 때만 렌더링
           */}
           { session && <AddingModal/>}
-          <Footer>by mapal</Footer>
+          <Footer>by Mapal</Footer>
         </Layout>
       </Layout>
 
