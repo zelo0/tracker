@@ -16,7 +16,7 @@ export default function PriceAddForm({ form }: { form: FormInstance}) {
     max: 50,
     required: true,
     whitespace: true, // failed if only has whitespace ,
-    message: '1글자 이상 50자 이하로 작성해주세요'
+    message: '가격을 등록할 제품을 찾아주세요'
   };
 
   const priceRule: Rule = {
@@ -43,8 +43,12 @@ export default function PriceAddForm({ form }: { form: FormInstance}) {
           required
           rules={[nameRule]}
           hasFeedback
-        >
-          <ProductSearch/>
+        > 
+          <ProductSearch
+            onChange={(val: string) => {
+              form.setFieldValue('goodId', val);
+            }}
+          />
         </Form.Item>
 
         <Form.Item 

@@ -1,11 +1,9 @@
 import { searchProduct } from "@/firebase/firestore/utils";
-import { AutoComplete } from "antd";
+import { Empty, Select } from "antd";
 import { useState } from "react";
 
-
-export default function ProductSearch() {
-  /* auto complete */
-  // state 변화로 rerendering 되는 지 확인
+/* auto complete */
+export default function ProductSearch({ onChange }: { onChange: (val: string) => void }) {
   const [productOptions, setproductOptions] = useState<{label: string, value: string}[]>([]);
 
   async function onSearch(searchText: string) {
@@ -19,7 +17,7 @@ export default function ProductSearch() {
       setproductOptions([]);
       return;
     }
-    /* TODO: 선택해도 value 값을 보여준다. label을 보여주기를 원한다 */
+    
     setproductOptions(searchResults.map((product) => ({
       label: product.goodName,
       value: product.id,
@@ -27,11 +25,14 @@ export default function ProductSearch() {
   }
 
   return (
-    <AutoComplete
+    <Select
+      filterOption={false}
+      notFoundContent={<Empty description="일치하는 제품이 없습니다"/>}
+      showSearch
       allowClear
-      options={productOptions}
-      // onSelect={onSelect}
       onSearch={onSearch}
+      options={productOptions}
+      onChange={(val) => onChange(val)}
       placeholder="제품 검색"
     />
   )
