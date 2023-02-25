@@ -2,8 +2,9 @@ import { searchProduct } from "@/firebase/firestore/utils";
 import { Empty, Select } from "antd";
 import { useState } from "react";
 
+
 /* auto complete */
-export default function ProductSearch({ onChange }: { onChange: (val: string) => void }) {
+export default function ProductSearch({ onChange, style }: { onChange: (val: string) => void, style: object }) {
   const [productOptions, setproductOptions] = useState<{label: string, value: string}[]>([]);
 
   async function onSearch(searchText: string) {
@@ -34,6 +35,8 @@ export default function ProductSearch({ onChange }: { onChange: (val: string) =>
       options={productOptions}
       onChange={(val) => onChange(val)}
       placeholder="제품 검색"
+      dropdownMatchSelectWidth={false}
+      style={style}
     />
   )
 }
