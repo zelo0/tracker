@@ -5,6 +5,7 @@ import { GetStaticPaths,GetStaticProps } from 'next';
 import { getMinMaxPriceBetweenRange, getProductName } from '@/firebase/firestore/utils';
 import { Chart as ChartJS, CategoryScale, LineController, LineElement, registerables } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import KakaoMap from '@/components/KakaoMap';
 
 const { Title } = Typography;
 
@@ -15,6 +16,7 @@ type MinMaxPriceForMonth = Array<{
 }>
 
 ChartJS.register(CategoryScale, LineController, LineElement, ...registerables);
+
 
 export default function ProductName({ name, minMaxPriceForMonth }: { name: string, minMaxPriceForMonth: MinMaxPriceForMonth}) {
   const router = useRouter();
@@ -87,8 +89,10 @@ export default function ProductName({ name, minMaxPriceForMonth }: { name: strin
     priceDifferencePercent = (lowestPriceThisMonth - lowestPriceLastMonth) / lowestPriceLastMonth * 100;
   }
 
+
+
   return (
-    <>
+    <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
       <Title level={3}>{name}</Title>
       <Row gutter={16}>
         <Col>
@@ -128,12 +132,23 @@ export default function ProductName({ name, minMaxPriceForMonth }: { name: strin
 
       {/* label을 dataset을 구별하는 key로 사용 (re-render) */}
       <div>
+        <Title level={5}>
+          가격 추이
+        </Title>
         <Line
           data={chartData}
           options={chartOptions}
+          style={{ width: "100%", maxHeight: "20rem" }}
         />
       </div>
-    </>
+
+      <div>
+        <Title level={5}>
+          판매 지점
+        </Title>
+        <KakaoMap/>
+      </div>
+    </div>
   );
 }
 
