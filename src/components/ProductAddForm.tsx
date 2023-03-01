@@ -1,9 +1,10 @@
 import { Form, Input, InputNumber } from "antd";
 import { FormInstance, Rule } from "antd/es/form";
+import React from "react";
 
 const { TextArea } = Input;
 
-export default function ProductAddForm({ form }: { form: FormInstance}) {
+function ProductAddForm({ form }: { form: FormInstance}) {
 
 
   const nameRule: Rule = {
@@ -60,3 +61,5 @@ export default function ProductAddForm({ form }: { form: FormInstance}) {
     </>
   );
 }
+
+export default React.memo(ProductAddForm)

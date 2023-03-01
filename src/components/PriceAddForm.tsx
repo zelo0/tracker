@@ -1,14 +1,15 @@
 
-
-import { searchProduct } from "@/firebase/firestore/utils";
-import { AutoComplete, Form, Input, InputNumber } from "antd";
+import { Form, Input, InputNumber } from "antd";
 import { FormInstance, Rule } from "antd/es/form";
-import { useRef, useState } from "react";
+import KakaoMapSearchWrapper from "./KakaoMapSearchWrapper";
 import ProductSearch from "./ProductSearch";
+import type { Place } from "./KakaoMap"
+import React from "react";
 
-const { TextArea } = Input;
 
-export default function PriceAddForm({ form }: { form: FormInstance}) {
+const { TextArea, Search } = Input;
+
+function PriceAddForm({ form }: { form: FormInstance}) {
 
   const nameRule: Rule = {
     type: 'string',
@@ -48,6 +49,7 @@ export default function PriceAddForm({ form }: { form: FormInstance}) {
             onChange={(val: string) => {
               form.setFieldValue('goodId', val);
             }}
+            style={{}}
           />
         </Form.Item>
 
@@ -81,7 +83,23 @@ export default function PriceAddForm({ form }: { form: FormInstance}) {
             autoSize
           />
         </Form.Item>
+
+
+        <Form.Item 
+          label="구매 장소"
+          name="place"
+          initialValue={{}}
+        >
+          <KakaoMapSearchWrapper 
+            onChange={(place : Place) => {
+              form.setFieldValue("place", place);
+            }}
+          />
+        </Form.Item>
+
       </Form>
     </>
   );
 }
+
+export default React.memo(PriceAddForm)
