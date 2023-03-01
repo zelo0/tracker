@@ -1,5 +1,5 @@
 import { database } from 'firebase.config.js';
-import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs, DocumentData, doc, collectionGroup, getDoc, runTransaction, where } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs, DocumentData, doc, collectionGroup, getDoc, runTransaction, where, Query } from 'firebase/firestore';
 import { PriceForm, PriceUpload, Product, ProductForm, ProductUplaod, ProductUploads, StatisticUpload } from './types';
 import type { DefaultSession } from 'next-auth'
 
@@ -82,6 +82,7 @@ export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
 
   const today = new Date();
   const statDoc = doc(database, `products/${data.goodId}/statistics`, today.toLocaleDateString());
+  /* TODO: uuid 안 쓰고 firestore 고유 id 받기 */
   const priceDoc = doc(database, `products/${data.goodId}/prices`, guid());
 
   await runTransaction(database, async (transaction) => {
@@ -100,12 +101,58 @@ export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
       maxPrice,
     } as StatisticUpload)
 
+
+    let placeId;
+    // form에 장소 정보가 존재하면
+    if (data.place) {
+      try {
+        const placesRef = collection(database, "places");
+        const q = query(placesRef, where("road_address_name", "==", data.place.road_address_name));
+        const placeSnap = await getDocs(q);
+
+        if (placeSnap.empty) {
+        // 해당 장소가 등록되어 있지 않으면
+          let uuid = guid();
+          transaction.set(
+            doc(database, `places/${uuid}`),
+            {
+              x: Number(data.place.x),
+              y: Number(data.place.y),
+              place_name: data.place.place_name,
+              road_address_name: data.place.road_address_name,
+            }
+          );
+          placeId = uuid;
+        } else {
+          placeId = placeSnap.docs[0].id;
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    
     // 가격 데이터 추가 
-    transaction.set(priceDoc, {
-      ...data,
-      date: today,
-      userEmail: user.email,
-    } as PriceUpload);
+    transaction.set(priceDoc, 
+      data.place 
+      ? 
+      {
+        goodId: data.goodId,
+        goodPrice: data.goodPrice,
+        review: data.review,
+        placeId,
+        date: today,
+        userEmail: user.email,
+      } as PriceUpload
+      : 
+      {
+        goodId: data.goodId,
+        goodPrice: data.goodPrice,
+        review: data.review,
+        date: today,
+        userEmail: user.email,
+      } as PriceUpload
+    );
 
   });
 }

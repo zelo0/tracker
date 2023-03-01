@@ -1,3 +1,5 @@
+import type { Place } from "@/components/KakaoMap";
+
 export interface ProductForm {
   goodName: string,
   description: string | undefined,
@@ -15,6 +17,7 @@ export interface PriceForm {
   goodId: string,
   goodPrice: number,
   review: string,
+  place: Place | null
 }
 
 export interface Price {
@@ -25,6 +28,7 @@ export interface Price {
   goodPrice: number,
   goodName: string,
   review: string,
+  place?: Place
 }
 
 export type Prices = Array<Price>;
@@ -42,6 +46,8 @@ export interface PriceUpload {
   goodId: string,
   goodPrice: number
   date: Date,
+  userEmail: String,
+  placeId?: String,
 }
 
 export interface ProductUplaod {
