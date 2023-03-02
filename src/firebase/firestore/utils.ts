@@ -105,30 +105,36 @@ export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
     let placeId;
     // form에 장소 정보가 존재하면
     if (data.place) {
-      try {
-        const placesRef = collection(database, "places");
-        const q = query(placesRef, where("road_address_name", "==", data.place.road_address_name));
-        const placeSnap = await getDocs(q);
+      const placesRef = collection(database, "places");
+      const q = query(placesRef, where("road_address_name", "==", data.place.road_address_name));
+      const placeSnap = await getDocs(q);
 
-        if (placeSnap.empty) {
-        // 해당 장소가 등록되어 있지 않으면
-          let uuid = guid();
-          transaction.set(
-            doc(database, `places/${uuid}`),
-            {
-              x: Number(data.place.x),
-              y: Number(data.place.y),
-              place_name: data.place.place_name,
-              road_address_name: data.place.road_address_name,
-            }
-          );
-          placeId = uuid;
-        } else {
-          placeId = placeSnap.docs[0].id;
-        }
-      } catch(e) {
-        console.error(e);
+      if (placeSnap.empty) {
+      // 해당 장소가 등록되어 있지 않으면
+        let uuid = guid();
+        transaction.set(
+          doc(database, `places/${uuid}`),
+          {
+            x: Number(data.place.x),
+            y: Number(data.place.y),
+            place_name: data.place.place_name,
+            road_address_name: data.place.road_address_name,
+          }
+        );
+        placeId = uuid;
+      } else {
+        placeId = placeSnap.docs[0].id;
       }
+
+      // 제품의 prices 컬렉션에도 place 등록
+      transaction.set(
+        doc(database, `products/${data.goodId}/places/${placeId}`),
+        {
+          x: Number(data.place.x),
+          y: Number(data.place.y),
+          place_name: data.place.place_name,
+        }
+      )
     }
 
     
