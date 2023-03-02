@@ -2,10 +2,11 @@ import { AreaChartOutlined, ArrowDownOutlined, ArrowUpOutlined, DollarOutlined, 
 import { Card, Col, Row, Skeleton, Space, Statistic, Typography } from 'antd';
 import { useRouter } from 'next/router';
 import { GetStaticPaths,GetStaticProps } from 'next';
-import { getMinMaxPriceBetweenRange, getProductName } from '@/firebase/firestore/utils';
+import { getMinMaxPriceForTwoYears, getProductName } from '@/firebase/firestore/utils';
 import { Chart as ChartJS, CategoryScale, LineController, LineElement, registerables } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import KakaoMap from '@/components/KakaoMap';
+import { Place } from '@/components/KakaoMap';
+import KakaoMapSearchWrapper from '@/components/KakaoMapSearchWrapper';
 
 const { Title } = Typography;
 
@@ -89,7 +90,9 @@ export default function ProductName({ name, minMaxPriceForMonth }: { name: strin
     priceDifferencePercent = (lowestPriceThisMonth - lowestPriceLastMonth) / lowestPriceLastMonth * 100;
   }
 
-
+  const onChangePlace = (place: Place) => {
+    
+  }
 
   return (
     <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
@@ -146,7 +149,9 @@ export default function ProductName({ name, minMaxPriceForMonth }: { name: strin
         <Title level={5}>
           판매 지점
         </Title>
-        <KakaoMap/>
+        <KakaoMapSearchWrapper onChange={onChangePlace} />
+        {/* TODO: 해당 장소에 등록된 가격 리스트 */}
+        
       </div>
     </div>
   );
@@ -176,40 +181,7 @@ export const getStaticProps: GetStaticProps = async (ctx) =>{
 
   /* 달마다 최저, 최대 가격 쿼리 (2년치) */
   // 현재 달 1일 0시
-  const now = new Date();
-  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
-  let curMonth = new Date(startOfThisMonth.getTime());
-  curMonth.setMonth(startOfThisMonth.getDate() - 12 * 2);
-
-  let startTimeCursor, endTimeCursor; 
-  let minMaxPriceForMonth = [];
-  while (curMonth.getTime() < now.getTime()) {
-    startTimeCursor = curMonth.getTime();
-    curMonth.setMonth(curMonth.getMonth() + 1);
-    // 다음 달 첫 날 
-    endTimeCursor = curMonth.getTime();
-
-    const result = await getMinMaxPriceBetweenRange(id as string, new Date(startTimeCursor), new Date(endTimeCursor));
-    /* TODO: 엄밀한 처리 */
-    if (!result) {
-      return {
-        props: {
-          name,
-          minMaxPriceForMonth: null,
-        }
-      };
-    }
-
-    const minPrice = result.minPrice;
-    const maxPrice = result.maxPrice;
-    
-    const displayDate = new Date(startTimeCursor);
-    minMaxPriceForMonth.push({
-      date: `${displayDate.getFullYear()}.${displayDate.getMonth() + 1}`,
-      minPrice,
-      maxPrice
-    });
-  }
+  const minMaxPriceForMonth = await getMinMaxPriceForTwoYears(id as string);
 
   return {
     props:{

@@ -175,25 +175,21 @@ export async function searchProduct(goodName: string) {
   }
 }
 
-export async function getMinMaxPriceBetweenRange(goodId: string, fromDate: Date, toDate: Date) {
-  try {
-    const statRef = collection(database, `products/${goodId}/statistics`);
-    const q = query(statRef, where('date', '>=', fromDate), where('date', '<', toDate));
-    return getDocs(q)
-      .then(data => data.docs.reduce(
-        (acc, cur) => ({               
-          minPrice: Math.min(acc.minPrice, cur.data().minPrice),
-          maxPrice: Math.max(acc.maxPrice, cur.data().maxPrice),
-        }
-      ),
-        {
-          minPrice: Infinity,
-          maxPrice: 0,
-        }
-      ));
-  } catch(e) {
-    console.error(e);
-  }
+async function getMinMaxPriceBetweenRange(goodId: string, fromDate: Date, toDate: Date) {
+  const statRef = collection(database, `products/${goodId}/statistics`);
+  const q = query(statRef, where('date', '>=', fromDate), where('date', '<', toDate));
+  return getDocs(q)
+    .then(data => data.docs.reduce(
+      (acc, cur) => ({               
+        minPrice: Math.min(acc.minPrice, cur.data().minPrice),
+        maxPrice: Math.max(acc.maxPrice, cur.data().maxPrice),
+      }
+    ),
+      {
+        minPrice: Infinity,
+        maxPrice: 0,
+      }
+    ));
 }
 
 export async function getProductName(goodId: string) {
@@ -207,3 +203,34 @@ export async function getProductName(goodId: string) {
     console.error(e);
   }
 } 
+
+/* 2년 치 한 달 단위 최저, 최고가 */
+export async function getMinMaxPriceForTwoYears(id: string) {
+  const now = new Date();
+  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+  let curMonth = new Date(startOfThisMonth.getTime());
+  curMonth.setMonth(startOfThisMonth.getDate() - 12 * 2);
+
+  let startTimeCursor, endTimeCursor; 
+  let minMaxPriceForMonth = [];
+  while (curMonth.getTime() < now.getTime()) {
+    startTimeCursor = curMonth.getTime();
+    curMonth.setMonth(curMonth.getMonth() + 1);
+    // 다음 달 첫 날 
+    endTimeCursor = curMonth.getTime();
+
+    const result = await getMinMaxPriceBetweenRange(id, new Date(startTimeCursor), new Date(endTimeCursor));
+
+    const minPrice = result.minPrice;
+    const maxPrice = result.maxPrice;
+    
+    const displayDate = new Date(startTimeCursor);
+    minMaxPriceForMonth.push({
+      date: `${displayDate.getFullYear()}.${displayDate.getMonth() + 1}`,
+      minPrice,
+      maxPrice
+    });
+  }
+
+  return minMaxPriceForMonth;
+}
