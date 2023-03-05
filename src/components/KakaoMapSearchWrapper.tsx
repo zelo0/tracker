@@ -8,10 +8,11 @@ const { Text } = Typography;
 
 
 interface Props {
-  onChange: (place: Place) => void
+  onChange: (place: Place) => void,
+  mapId: String
 }
 
-export default function KakaoMapSearchWrapper({ onChange }: Props) {
+export default function KakaoMapSearchWrapper({ onChange, mapId }: Props) {
   const mapRef = useRef<{ keywordSearch: (keyword: string) => void }>(null);
   const [place, setPlace] = useState<Place | null>(null)
 
@@ -41,7 +42,7 @@ export default function KakaoMapSearchWrapper({ onChange }: Props) {
       <Text strong>{place ? place.place_name : ''}</Text>
 
       <Search placeholder="키워드를 검색해주세요"  onSearch={onSearchPlace} style={{ width: "100%" }} />
-      <KakaoMap ref={mapRef} onClickMarker={onClickMarker} />
+      <KakaoMap ref={mapRef} onClickMarker={onClickMarker} mapId={mapId} />
     </div>
   )
 }

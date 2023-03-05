@@ -83,7 +83,7 @@ export default function KakaoMapPriceList() {
 
   return (
     <>
-      <KakaoMapSearchWrapper onChange={onChangePlace} />
+      <KakaoMapSearchWrapper onChange={onChangePlace} mapId={"price-list"} />
 
       {/* 해당 장소에 등록된 가격 리스트 */}
       <InfiniteScroll 

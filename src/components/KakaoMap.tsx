@@ -42,12 +42,13 @@ export type MapRef = {
 } | null;
 
 interface Props {
-  onClickMarker: (place: Place) => void
+  onClickMarker: (place: Place) => void,
+  mapId: String
 }
 
 
 
-function KakaoMap({onClickMarker}: Props, ref: ForwardedRef<MapRef>) {
+function KakaoMap({onClickMarker, mapId}: Props, ref: ForwardedRef<MapRef>) {
   let ps: KakaoPlaceSearch | undefined;
   let map: Map | undefined;
   let infowindow: InfoWindow | undefined;
@@ -101,7 +102,8 @@ function KakaoMap({onClickMarker}: Props, ref: ForwardedRef<MapRef>) {
 
   const loadHandler = () => {
     window.kakao.maps.load(() => {
-      let container = document.getElementById('map'); //지도를 담을 영역의 DOM 레퍼런스
+
+      let container = document.getElementById(`map-${mapId}`); //지도를 담을 영역의 DOM 레퍼런스
       let options = { //지도를 생성할 때 필요한 기본 옵션
         center: new window.kakao.maps.LatLng(33.450701, 126.570667), //지도의 중심좌표.
         level: 3 //지도의 레벨(확대, 축소 정도)
@@ -117,12 +119,12 @@ function KakaoMap({onClickMarker}: Props, ref: ForwardedRef<MapRef>) {
     });
   }
 
+  /* script 중복 방지 */
   useEffect(() => {
     /* load map js  */
     let script = document.createElement("script");
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services,clusterer,drawing&autoload=false`;
     script.async = true;
-
     document.body.appendChild(script);
 
     script.addEventListener("load", loadHandler);
@@ -131,7 +133,7 @@ function KakaoMap({onClickMarker}: Props, ref: ForwardedRef<MapRef>) {
       script.removeEventListener("load", loadHandler);
       // script 중복 방지
       document.body.removeChild(script);
-    }
+    }     
   }, []);
 
   
@@ -148,7 +150,7 @@ function KakaoMap({onClickMarker}: Props, ref: ForwardedRef<MapRef>) {
   );
   
   return (
-    <div id="map" style={{ width: "100%", height: "20rem" }}></div>
+    <div id={`map-${mapId}`}  style={{ width: "100%", height: "20rem" }}></div>
   ) 
 }
 

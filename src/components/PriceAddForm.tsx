@@ -94,6 +94,7 @@ function PriceAddForm({ form }: { form: FormInstance}) {
             onChange={(place : Place) => {
               form.setFieldValue("place", place);
             }}
+            mapId={"price-form"}
           />
         </Form.Item>
 
