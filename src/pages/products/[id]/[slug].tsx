@@ -5,8 +5,6 @@ import { GetStaticPaths,GetStaticProps } from 'next';
 import { getMinMaxPriceForTwoYears, getProductName } from '@/firebase/firestore/utils';
 import { Chart as ChartJS, CategoryScale, LineController, LineElement, registerables } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { Place } from '@/components/KakaoMap';
-import KakaoMapSearchWrapper from '@/components/KakaoMapSearchWrapper';
 import KakaoMapPriceList from '@/components/KakaoMapPriceList';
 
 const { Title } = Typography;
@@ -20,7 +18,7 @@ type MinMaxPriceForMonth = Array<{
 ChartJS.register(CategoryScale, LineController, LineElement, ...registerables);
 
 
-export default function ProductName({ name, minMaxPriceForMonth }: { name: string, minMaxPriceForMonth: MinMaxPriceForMonth}) {
+export default function ProductDetail({ name, minMaxPriceForMonth }: { name: string, minMaxPriceForMonth: MinMaxPriceForMonth}) {
   const router = useRouter();
 
   if (router.isFallback) {
