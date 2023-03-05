@@ -33,7 +33,18 @@ export function DefaultHeader() {
 
 
   return (
-    <Header  style={{ position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <Header  
+      style={
+        { 
+          position: 'sticky', 
+          top: 0, 
+          zIndex: 100,
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center' 
+        }
+      }
+    >
         <Link 
           href='/'
           style={{flexGrow: 1}}
