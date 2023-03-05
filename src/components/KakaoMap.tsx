@@ -13,10 +13,18 @@ interface KakaoPlaceSearch {
 }
 
 export interface Place {
-  x: Number,
-  y: Number,
+  id: String,
+  x: String,
+  y: String,
   place_name: String,
-  road_address_name: String
+  road_address_name: String,
+  address_name: String,
+  category_group_code: String,
+  category_group_name: String,
+  category_name: String,
+  distance: String,
+  phone: String,
+  place_url: String,
 }
 
 interface InfoWindow {
