@@ -1,6 +1,6 @@
 import { database } from 'firebase.config.js';
-import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs, DocumentData, doc, collectionGroup, getDoc, runTransaction, where, Query } from 'firebase/firestore';
-import { PriceForm, PriceUpload, Product, ProductForm, ProductUplaod, ProductUploads, StatisticUpload } from './types';
+import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs, DocumentData, doc, collectionGroup, getDoc, runTransaction, where, startAfter, QueryDocumentSnapshot } from 'firebase/firestore';
+import { PlaceResponse, Price, PriceForm, PriceUpload, Product, ProductForm, ProductUplaod, ProductUploads, StatisticUpload } from './types';
 import type { DefaultSession } from 'next-auth'
 
 
@@ -111,9 +111,9 @@ export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
 
       if (placeSnap.empty) {
       // 해당 장소가 등록되어 있지 않으면
-        let uuid = guid();
+      /* TODO: 필오할 지 고민 */
         transaction.set(
-          doc(database, `places/${uuid}`),
+          doc(database, `places/${data.place.id}`),
           {
             x: Number(data.place.x),
             y: Number(data.place.y),
@@ -121,7 +121,7 @@ export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
             road_address_name: data.place.road_address_name,
           }
         );
-        placeId = uuid;
+        placeId = data.place.id;
       } else {
         placeId = placeSnap.docs[0].id;
       }
@@ -239,4 +239,35 @@ export async function getMinMaxPriceForTwoYears(id: string) {
   }
 
   return minMaxPriceForMonth;
+}
+
+export async function getPricesPagination(productId: String, placeId: String, start?: QueryDocumentSnapshot) {
+  const q = 
+    start 
+    ? 
+    query(
+      collection(database, `products/${productId}/prices`),
+      where("placeId", "==",  placeId),
+      orderBy("date", "desc"),
+      startAfter(start), 
+      limit(10)
+    )
+    :
+    query(
+      collection(database, `products/${productId}/prices`),
+      where("placeId", "==",  placeId),
+      orderBy("date", "desc"),
+      limit(10)
+    );
+
+  const snapshot = await getDocs(q)
+  return { 
+    data: snapshot.docs.map((snap) => {
+      return Object.assign(snap.data(), {
+        id: snap.id,
+        date: snap.data().date.toDate().toLocaleDateString(),
+      }) as Price
+    }),
+    lastDoc: snapshot.docs.at(-1)
+  }
 }

@@ -23,12 +23,12 @@ export interface PriceForm {
 export interface Price {
   id: string,
   date: string,
-  entpId: string,
+  placeId?: string,
   goodId: string,
   goodPrice: number,
   goodName: string,
   review: string,
-  place?: Place
+  userEmail: string
 }
 
 export type Prices = Array<Price>;
@@ -57,3 +57,7 @@ export interface ProductUplaod {
 }
 
 export type ProductUploads = Array<ProductUplaod>
+
+export interface PlaceResponse extends Place {
+  id: String
+}

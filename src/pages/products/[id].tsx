@@ -7,6 +7,7 @@ import { Chart as ChartJS, CategoryScale, LineController, LineElement, registera
 import { Line } from 'react-chartjs-2';
 import { Place } from '@/components/KakaoMap';
 import KakaoMapSearchWrapper from '@/components/KakaoMapSearchWrapper';
+import KakaoMapPriceList from '@/components/KakaoMapPriceList';
 
 const { Title } = Typography;
 
@@ -90,9 +91,7 @@ export default function ProductName({ name, minMaxPriceForMonth }: { name: strin
     priceDifferencePercent = (lowestPriceThisMonth - lowestPriceLastMonth) / lowestPriceLastMonth * 100;
   }
 
-  const onChangePlace = (place: Place) => {
-    
-  }
+
 
   return (
     <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
@@ -149,9 +148,8 @@ export default function ProductName({ name, minMaxPriceForMonth }: { name: strin
         <Title level={5}>
           판매 지점
         </Title>
-        <KakaoMapSearchWrapper onChange={onChangePlace} />
-        {/* TODO: 해당 장소에 등록된 가격 리스트 */}
-        
+
+        <KakaoMapPriceList/>
       </div>
     </div>
   );
