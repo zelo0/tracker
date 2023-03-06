@@ -4,12 +4,12 @@ import { useRouter } from 'next/router';
 import { GetStaticPaths,GetStaticProps } from 'next';
 import { getMinMaxPriceForTwoYears, getProductName } from '@/firebase/firestore/utils';
 import { Chart as ChartJS, CategoryScale, LineController, LineElement, registerables } from 'chart.js';
-import { Line } from 'react-chartjs-2';
 import KakaoMapPriceList from '@/components/KakaoMapPriceList';
+import PriceChart from '@/components/PriceChart';
 
 const { Title } = Typography;
 
-type MinMaxPriceForMonth = Array<{
+export type MinMaxPriceForMonth = Array<{
   date: string,
   minPrice: number,
   maxPrice: number
@@ -53,34 +53,6 @@ export default function ProductDetail({ name, minMaxPriceForMonth }: { name: str
     )
   }
 
-  /* chart.js */
-  const chartData = {
-    labels: minMaxPriceForMonth.map((data) => data.date),
-    datasets: [
-      {
-        label: "최저 가격",
-        data: minMaxPriceForMonth.map((data) => data.minPrice < Infinity ? data.minPrice : null),
-        fill: 1,
-      },
-      {
-        label: "최고 가격",
-        data: minMaxPriceForMonth.map((data) => data.maxPrice > 0 ? data.maxPrice : null),
-      },
-    ],
-  };
-
-  const chartOptions = {
-    scales: {
-      y: {
-        min: 0
-      }
-    },
-    interaction: {
-      mode: 'index' as 'index',
-      intersect: false
-    },
-    responsive: true,
-  };
 
   const lowestPriceThisMonth = minMaxPriceForMonth.at(-1)?.minPrice;
   const lowestPriceLastMonth = minMaxPriceForMonth.at(-2)?.minPrice;
@@ -135,11 +107,7 @@ export default function ProductDetail({ name, minMaxPriceForMonth }: { name: str
         <Title level={5}>
           가격 추이
         </Title>
-        <Line
-          data={chartData}
-          options={chartOptions}
-          style={{ width: "100%", maxHeight: "20rem" }}
-        />
+        <PriceChart minMaxPriceForMonth={minMaxPriceForMonth}/>
       </div>
 
       <div>
