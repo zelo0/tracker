@@ -271,3 +271,36 @@ export async function getPricesPagination(productId: String, placeId: String, st
     lastDoc: snapshot.docs.at(-1)
   }
 }
+
+/* 한 달 치 하루 단위 최저, 최고가 */
+export async function getMinMaxPriceForOneMonth(id: string, tilMonth: string) {
+  let splitYearMonth = tilMonth.split('.');
+
+  const startOfDate = new Date(Number(splitYearMonth[0].trim()), Number(splitYearMonth[1].trim()) - 1, 1, 0, 0, 0);
+  const startOfNextMonth = new Date(startOfDate)
+  startOfNextMonth.setMonth(startOfDate.getMonth() + 1)
+
+
+  let startTimeCursor, endTimeCursor; 
+  let minMaxPriceForMonth = [];
+  while (startOfDate.getTime() < startOfNextMonth.getTime()) {
+    startTimeCursor = startOfDate.getTime();
+    startOfDate.setDate(startOfDate.getDate() + 1);
+    // 다음 달 첫 날 
+    endTimeCursor = startOfDate.getTime();
+
+    const result = await getMinMaxPriceBetweenRange(id, new Date(startTimeCursor), new Date(endTimeCursor));
+
+    const minPrice = result.minPrice;
+    const maxPrice = result.maxPrice;
+    
+    const displayDate = new Date(startTimeCursor);
+    minMaxPriceForMonth.push({
+      date: `${displayDate.getFullYear()}.${displayDate.getMonth() + 1}.${displayDate.getDate()}`,
+      minPrice,
+      maxPrice
+    });
+  }
+
+  return minMaxPriceForMonth;
+}
