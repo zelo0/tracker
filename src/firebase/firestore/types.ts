@@ -61,3 +61,9 @@ export type ProductUploads = Array<ProductUplaod>
 export interface PlaceResponse extends Place {
   id: String
 }
+
+export interface MinMaxPrice { 
+  date: string, 
+  minPrice: number, 
+  maxPrice: number, 
+}
