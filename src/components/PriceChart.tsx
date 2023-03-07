@@ -1,7 +1,7 @@
 import { MinMaxPrice } from '@/firebase/firestore/types';
 import { getMinMaxPriceForOneMonth } from '@/firebase/firestore/utils';
 import { MinMaxPriceForMonth } from '@/pages/products/[id]/[slug]';
-import { Chart as ChartJS, CategoryScale, LineController, LineElement, registerables } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LineController, LineElement, registerables, ChartEvent  } from 'chart.js';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Line } from 'react-chartjs-2';
@@ -30,7 +30,7 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
         intersect: false
       },
       responsive: true,
-      onClick: (event, elements, chart) => {
+      onClick: (event: ChartEvent, elements: any, chart: any) => {
         if (elements[0]) {
           setShowingDate(chart.data.labels[elements[0].index]);
         }
@@ -51,7 +51,7 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
         intersect: false
       },
       responsive: true,
-      onClick: (event, elements, chart) => {
+      onClick: (event: ChartEvent, elements: any, chart: any) => {
         // 일별 지점 클릭하면 해당 날짜의 가격들 리스트로 렌더링
 
         // if (elements[0]) {
@@ -110,12 +110,12 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
       datasets: [
         {
           label: "최저 가격",
-          data: minMaxPriceForMonth.map((data) => data.minPrice < Infinity ? data.minPrice : null),
+          data: daySourcetData.map((data) => data.minPrice < Infinity ? data.minPrice : null),
           fill: 1,
         },
         {
           label: "최고 가격",
-          data: minMaxPriceForMonth.map((data) => data.maxPrice > 0 ? data.maxPrice : null),
+          data: daySourcetData.map((data) => data.maxPrice > 0 ? data.maxPrice : null),
         },
       ],
     }
