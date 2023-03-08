@@ -15,7 +15,7 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
   const router = useRouter();
 
 
-  const [showingDate, setShowingDate] = useState<string | undefined>();
+  const [showingMonth, setShowingMonth] = useState<string | undefined>();
   const [daySourcetData, setDaySourceData] = useState<Array<MinMaxPrice> | undefined>();
 
   const yearChartOptions = useMemo(() => {
@@ -32,7 +32,7 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
       responsive: true,
       onClick: (event: ChartEvent, elements: any, chart: any) => {
         if (elements[0]) {
-          setShowingDate(chart.data.labels[elements[0].index]);
+          setShowingMonth(chart.data.labels[elements[0].index]);
         }
       }
     };
@@ -84,10 +84,10 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
 
   useEffect(() => {
     (async () => {
-      if (showingDate) {
+      if (showingMonth) {
 
         // firestore에 일별 통계 요청
-        const result = await getMinMaxPriceForOneMonth(router.query.id as string, showingDate);
+        const result = await getMinMaxPriceForOneMonth(router.query.id as string, showingMonth);
         console.log(result);
         setDaySourceData(result);
 
@@ -98,7 +98,7 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
     return () => {
 
     }
-  }, [showingDate]);
+  }, [showingMonth, router.query.id]);
 
   
   const dayChartData = useMemo(() => {
@@ -129,7 +129,7 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
   return (
     <>
       {
-        !showingDate 
+        !showingMonth 
         && 
         <Line
           data={yearChartData}
