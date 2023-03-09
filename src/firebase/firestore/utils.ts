@@ -126,7 +126,7 @@ export async function addPrice(data: PriceForm, user: DefaultSession["user"]) {
         placeId = placeSnap.docs[0].id;
       }
 
-      // 제품의 prices 컬렉션에도 place 등록
+      // 제품의 place 컬렉션에도 place 등록
       transaction.set(
         doc(database, `products/${data.goodId}/places/${placeId}`),
         {
@@ -241,7 +241,7 @@ export async function getMinMaxPriceForTwoYears(id: string) {
   return minMaxPriceForMonth;
 }
 
-export async function getPricesPagination(productId: String, placeId: String, start?: QueryDocumentSnapshot) {
+export async function getPricesPaginationByPlace(productId: String, placeId: String, start?: QueryDocumentSnapshot) {
   const q = 
     start 
     ? 
@@ -257,6 +257,41 @@ export async function getPricesPagination(productId: String, placeId: String, st
       collection(database, `products/${productId}/prices`),
       where("placeId", "==",  placeId),
       orderBy("date", "desc"),
+      limit(10)
+    );
+
+  const snapshot = await getDocs(q)
+  return { 
+    data: snapshot.docs.map((snap) => {
+      return Object.assign(snap.data(), {
+        id: snap.id,
+        date: snap.data().date.toDate().toLocaleDateString(),
+      }) as Price
+    }),
+    lastDoc: snapshot.docs.at(-1)
+  }
+}
+
+export async function getPricesPaginationByDate(productId: string, date: string, start?: QueryDocumentSnapshot) {
+  let fromDate = new Date(date);
+  let toDate = new Date(fromDate);
+  toDate.setDate(toDate.getDate()  + 1);
+
+  const q = 
+    start 
+    ? 
+    query(
+      collection(database, `products/${productId}/prices`),
+      where("date", ">=",  fromDate),
+      where("date", "<", toDate),
+      startAfter(start), 
+      limit(10)
+    )
+    :
+    query(
+      collection(database, `products/${productId}/prices`),
+      where("date", ">=",  fromDate),
+      where("date", "<", toDate),
       limit(10)
     );
 

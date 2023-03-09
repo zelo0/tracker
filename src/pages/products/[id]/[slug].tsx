@@ -107,7 +107,7 @@ export default function ProductDetail({ name, minMaxPriceForMonth }: { name: str
         <Title level={5}>
           가격 추이
         </Title>
-        <PriceChart minMaxPriceForMonth={minMaxPriceForMonth}/>
+        <PriceChart productId={router.query.id as string} minMaxPriceForMonth={minMaxPriceForMonth}/>
       </div>
 
       <div>

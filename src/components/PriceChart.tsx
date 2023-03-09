@@ -1,22 +1,33 @@
-import { MinMaxPrice } from '@/firebase/firestore/types';
-import { getMinMaxPriceForOneMonth } from '@/firebase/firestore/utils';
+import { MinMaxPrice, Price } from '@/firebase/firestore/types';
+import { getMinMaxPriceForOneMonth, getPricesPaginationByDate } from '@/firebase/firestore/utils';
 import { MinMaxPriceForMonth } from '@/pages/products/[id]/[slug]';
+import { QueryDocumentSnapshot } from '@firebase/firestore';
+import { List, Skeleton } from 'antd';
 import { Chart as ChartJS, CategoryScale, LineController, LineElement, registerables, ChartEvent  } from 'chart.js';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Line } from 'react-chartjs-2';
+import InfiniteScroll from 'react-infinite-scroller';
 
 
 ChartJS.register(CategoryScale, LineController, LineElement, ...registerables);
 
+interface DataType extends Price {
 
+}
 
-export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMonth: MinMaxPriceForMonth}) {
+export default function PriceChart({ productId, minMaxPriceForMonth }: { productId: string, minMaxPriceForMonth: MinMaxPriceForMonth}) {
   const router = useRouter();
 
 
   const [showingMonth, setShowingMonth] = useState<string | undefined>();
   const [daySourcetData, setDaySourceData] = useState<Array<MinMaxPrice> | undefined>();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  let hasMore = useRef<boolean>(false);
+  let lastData = useRef<QueryDocumentSnapshot | undefined>();
+  const [scrollData, setScrollData] = useState<DataType[]>([]);
+  const [showingDate, setShowingDate] = useState<string | undefined>();
 
   const yearChartOptions = useMemo(() => {
     return {
@@ -54,12 +65,27 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
       onClick: (event: ChartEvent, elements: any, chart: any) => {
         // 일별 지점 클릭하면 해당 날짜의 가격들 리스트로 렌더링
 
-        // if (elements[0]) {
-        //   setShowingDate(chart.data.labels[elements[0].index]);
-        // }
+        if (elements[0]) {
+          setShowingDate(chart.data.labels[elements[0].index]);
+        }
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (loading) {
+      setLoading(false);
+    }
+    setScrollData([]);
+    lastData.current = undefined;
+    hasMore.current = true;
+    
+
+
+    return () => {
+    }
+  }, [showingDate])
+  
 
 
   const yearChartData = useMemo(() => {
@@ -122,7 +148,41 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
   }, [daySourcetData]);
 
 
-  
+  const loadMoreData = async () => {
+    
+    if (loading) {
+      return;
+    }
+
+    if (!showingDate) {
+      setLoading(false);
+      hasMore.current = false;
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      let response;
+      if (!lastData.current) { // 첫 fetch
+        response = await getPricesPaginationByDate(productId as string, showingDate)
+      } else {
+        response = await getPricesPaginationByDate(productId as string, showingDate, lastData.current)
+      }
+
+      let priceList = response.data;
+      console.log(priceList);
+      setScrollData([...scrollData, ...priceList]);
+      if (!priceList || !priceList.length) {
+        hasMore.current = false;
+      } else {
+        lastData.current = response.lastDoc;
+      }
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+    }
+  };
 
 
 
@@ -149,7 +209,25 @@ export default function PriceChart({ minMaxPriceForMonth }: { minMaxPriceForMont
             style={{ width: "100%", maxHeight: "20rem" }}
           /> 
           {/* 하루동안 등록된 가격 리스트 */}
-          <li>리스트</li>
+
+          <InfiniteScroll
+            loadMore={loadMoreData}
+            hasMore={hasMore.current}
+            loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
+          >
+            <List
+              dataSource={scrollData}
+              renderItem={(item) => (
+                <List.Item key={item.id}>
+                  <List.Item.Meta
+                    title={item.goodPrice + '원'}
+                    description={item.date}
+                  />
+                  {item.review}
+                </List.Item>
+              )}
+            />  
+          </InfiniteScroll>
         </>
       }
     </>
