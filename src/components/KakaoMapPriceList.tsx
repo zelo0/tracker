@@ -1,5 +1,5 @@
 import { Price } from "@/firebase/firestore/types";
-import { getPricesPagination } from "@/firebase/firestore/utils";
+import { getPricesPaginationByPlace } from "@/firebase/firestore/utils";
 import {  QueryDocumentSnapshot } from "@firebase/firestore";
 import { List, Skeleton } from "antd";
 import { useRouter } from "next/router";
@@ -61,9 +61,9 @@ export default function KakaoMapPriceList() {
     try {
       let response;
       if (!lastData.current) { // 첫 fetch
-        response = await getPricesPagination(productId as String, place.id)
+        response = await getPricesPaginationByPlace(productId as String, place.id)
       } else {
-        response = await getPricesPagination(productId as String, place.id, lastData.current)
+        response = await getPricesPaginationByPlace(productId as String, place.id, lastData.current)
       }
 
       let priceList = response.data;
