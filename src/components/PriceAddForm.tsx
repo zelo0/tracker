@@ -88,7 +88,7 @@ function PriceAddForm({ form }: { form: FormInstance}) {
         <Form.Item 
           label="구매 장소"
           name="place"
-          initialValue={{}}
+          initialValue={null}
         >
           <KakaoMapSearchWrapper 
             onChange={(place : Place) => {
