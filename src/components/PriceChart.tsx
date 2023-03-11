@@ -57,6 +57,7 @@ export default function PriceChart({ productId, minMaxPriceForMonth }: { product
         intersect: false
       },
       responsive: true,
+      spanGaps: true,
       onClick: (event: ChartEvent, elements: any, chart: any) => {
         if (elements[0]) {
           setShowingMonth(chart.data.labels[elements[0].index]);
@@ -78,6 +79,7 @@ export default function PriceChart({ productId, minMaxPriceForMonth }: { product
         intersect: false
       },
       responsive: true,
+      spanGaps: true,
       onClick: (event: ChartEvent, elements: any, chart: any) => {
         // 일별 지점 클릭하면 해당 날짜의 가격들 리스트로 렌더링
 
