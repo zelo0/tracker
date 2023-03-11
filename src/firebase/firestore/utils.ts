@@ -339,3 +339,12 @@ export async function getMinMaxPriceForOneMonth(id: string, tilMonth: string) {
 
   return minMaxPriceForMonth;
 }
+
+
+/* 인덱스에서 보여줄 특정 제품들 */
+export async function getPromotions() {
+  const snapshot = await getDocs(collection(database, 'promotions'));
+  return snapshot.docs.map(doc => {
+    return doc.data();
+  })
+}
