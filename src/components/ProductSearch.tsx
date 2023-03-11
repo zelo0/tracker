@@ -34,7 +34,12 @@ export default function ProductSearch({ onChangeHandler, style }: { onChangeHand
       labelInValue
       onSearch={onSearch}
       options={productOptions}
-      onChange={(val: { value: string; label: React.ReactNode }) => onChangeHandler(val)}
+      onChange={(val: { value: string; label: React.ReactNode }) => {
+          if (val) {
+            onChangeHandler(val)
+          }
+        }
+      }
       placeholder="제품 검색"
       dropdownMatchSelectWidth={false}
       style={style}
