@@ -64,7 +64,7 @@ export default function ProductDetail({ name, minMaxPriceForMonth }: { name: str
 
 
   return (
-    <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
+    <div style={{ display: "flex", gap: "8px", flexDirection: "column" }} key={router.asPath}>
       <Title level={3}>{name}</Title>
       <Row gutter={16}>
         <Col>
