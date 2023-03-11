@@ -58,7 +58,7 @@ export function DefaultHeader() {
           </Button>
         </Link>
         <ProductSearch 
-          onChange={(productId) => {router.push(`products/${productId}`)}}
+          onChangeHandler={(val: { value: string; label: React.ReactNode }) => {router.push(`/products/${val.value}/${val.label}`)}}
           style={{ flexGrow: 2, minWidth: 0 }}
           key="menuSearchBar"
         />

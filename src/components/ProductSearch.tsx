@@ -4,7 +4,7 @@ import { useState } from "react";
 
 
 /* auto complete */
-export default function ProductSearch({ onChange, style }: { onChange: (val: string) => void, style: object }) {
+export default function ProductSearch({ onChangeHandler, style }: { onChangeHandler: (val: { value: string; label: React.ReactNode }) => void, style: object }) {
   const [productOptions, setproductOptions] = useState<{label: string, value: string}[]>([]);
 
   async function onSearch(searchText: string) {
@@ -31,9 +31,10 @@ export default function ProductSearch({ onChange, style }: { onChange: (val: str
       notFoundContent={<Empty description="일치하는 제품이 없습니다"/>}
       showSearch
       allowClear
+      labelInValue
       onSearch={onSearch}
       options={productOptions}
-      onChange={(val) => onChange(val)}
+      onChange={(val: { value: string; label: React.ReactNode }) => onChangeHandler(val)}
       placeholder="제품 검색"
       dropdownMatchSelectWidth={false}
       style={style}

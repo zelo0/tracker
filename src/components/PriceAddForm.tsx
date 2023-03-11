@@ -46,8 +46,8 @@ function PriceAddForm({ form }: { form: FormInstance}) {
           hasFeedback
         > 
           <ProductSearch
-            onChange={(val: string) => {
-              form.setFieldValue('goodId', val);
+            onChangeHandler={(val: { value: string; label: React.ReactNode }) => {
+              form.setFieldValue('goodId', val.value);
             }}
             style={{}}
           />
