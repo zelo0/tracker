@@ -15,7 +15,6 @@ interface DataType extends Price {
 export default function KakaoMapPriceList() {
   const router = useRouter();
   const productId = router.query.id;
-  console.log('product', productId);
 
   let lastData = useRef<QueryDocumentSnapshot | undefined>();
   let hasMore = useRef<boolean>(false);
@@ -28,7 +27,6 @@ export default function KakaoMapPriceList() {
   const onChangePlace = useCallback(
     (newPlace: Place) => {
       setPlace((prevPlace) => {
-        console.log('prevPlace', prevPlace);
         if (prevPlace?.id === newPlace.id) {
           return prevPlace;
         } else {
@@ -67,7 +65,6 @@ export default function KakaoMapPriceList() {
       }
 
       let priceList = response.data;
-      console.log(priceList);
       setData([...data, ...priceList]);
       if (!priceList || !priceList.length) {
         hasMore.current = false;

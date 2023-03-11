@@ -132,7 +132,6 @@ export default function PriceChart({ productId, minMaxPriceForMonth }: { product
       (async () => {
           // firestore에 일별 통계 요청
           const result = await getMinMaxPriceForOneMonth(router.query.id as string, showingMonth);
-          console.log(result);
           setMinMaxPriceForDaySource(result);
       })();
     }
@@ -195,7 +194,6 @@ export default function PriceChart({ productId, minMaxPriceForMonth }: { product
       }
 
       let priceList = response.data;
-      console.log(priceList);
       setScrollData([...scrollData, ...priceList]);
       if (!priceList || !priceList.length) {
         hasMore.current = false;
