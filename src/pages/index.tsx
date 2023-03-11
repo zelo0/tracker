@@ -54,6 +54,7 @@ export default function Index({ recentPrices, promotions }: { recentPrices: Pric
             <Card 
               hoverable
               bordered={false}
+              key={promotion.goodId}
               onClick={() => cardClickHandler(promotion.goodName, promotion.goodId)}
               style={{width: 200}}
             >
