@@ -68,7 +68,6 @@ export default function Index({ recentPrices, promotions }: { recentPrices: Pric
                 width={100}
                 height={100}
                 src={promotion['img']}
-                onClick={(evt) => {evt.stopPropagation();}}
               />
             </Card>
           )
