@@ -13,8 +13,21 @@ import InfiniteScroll from 'react-infinite-scroller';
 
 ChartJS.register(CategoryScale, LineController, LineElement, ...registerables);
 
-interface DataType extends Price {
+interface PriceListDataType extends Price {
 
+}
+
+interface ChartDataType {
+  labels: string[];
+  datasets: ({
+      label: string;
+      data: (number | null)[];
+      fill: number;
+  } | {
+      label: string;
+      data: (number | null)[];
+      fill?: undefined;
+  })[];
 }
 
 export default function PriceChart({ productId, minMaxPriceForMonth }: { productId: string, minMaxPriceForMonth: MinMaxPriceForMonth}) {
@@ -25,11 +38,11 @@ export default function PriceChart({ productId, minMaxPriceForMonth }: { product
   const [minMaxPriceForDaySource, setMinMaxPriceForDaySource] = useState<Array<MinMaxPrice> | undefined>();
   const [loadingScroll, setLoadingScroll] = useState<boolean>(false);
   const [loadingDayChart, setLoadingDayChart] = useState<boolean>(false);
-  const [dayChartData, setDayChartData] = useState();
+  const [dayChartData, setDayChartData] = useState<ChartDataType | undefined>();
 
   let hasMore = useRef<boolean>(false);
   let lastData = useRef<QueryDocumentSnapshot | undefined>();
-  const [scrollData, setScrollData] = useState<DataType[]>([]);
+  const [scrollData, setScrollData] = useState<PriceListDataType[]>([]);
   const [showingDate, setShowingDate] = useState<string | undefined>();
 
   const yearChartOptions = useMemo(() => {
