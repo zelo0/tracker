@@ -1,13 +1,13 @@
-import { Button, Layout, Menu, MenuProps } from 'antd';
-import type { ReactElement } from 'react';
+import { Layout } from 'antd';
+import { ReactElement } from 'react';
 import AddingModal from '../AddingModal';
-import { useSession, signOut, signIn } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import React from 'react';
 import { DefaultHeader } from '../DefaultHeader';
 
 const { Header, Content, Footer } = Layout;
 
-export default function DefaultLayout({ children }: { children: ReactElement }) {
+function DefaultLayout({ children }: { children: ReactElement }) {
   /* context의 status가 loading -> unauthorized로 바뀜 
   * context를 사용하는 컴포넌트는 context가 바뀌면 re render
   */
@@ -35,3 +35,5 @@ export default function DefaultLayout({ children }: { children: ReactElement }) 
     </Layout>
   );
 }
+
+export default React.memo(DefaultLayout);
