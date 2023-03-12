@@ -1,5 +1,7 @@
 # 소개
 제품의 가격 통계를 볼 수 있는 서비스
+![image](https://user-images.githubusercontent.com/86035717/224535414-22308e29-dd13-4bf6-acb3-d1f7e0cc3677.png)
+
 
 <br/><br/>
 
