@@ -1,12 +1,11 @@
-import { Card, Typography, Image, Space } from 'antd';
+import { Card, Image, Space } from 'antd';
 import { GetStaticProps } from 'next';
-import type { Prices, Products } from '@/firebase/firestore/types'
-import { getPromotions, getRecentFivePrices, readRecentFiveProducts } from '@/firebase/firestore/utils';
+import type { Prices } from '@/firebase/firestore/types'
+import { getPromotions, getRecentFivePrices } from '@/firebase/firestore/utils';
 import { useRouter } from 'next/router';
 import IndexSection from '@/components/IndexSection';
-import { DocumentData, QueryDocumentSnapshot } from '@firebase/firestore';
+import { DocumentData } from '@firebase/firestore';
  
-const { Title } = Typography;
 const { Meta } = Card;
 
 const PRICE_SYMBOL = '₩';
@@ -34,6 +33,7 @@ export default function Index({ recentPrices, promotions }: { recentPrices: Pric
               bordered={false}
               key={price.id}
               onClick={() => {cardClickHandler(price.goodName, price.goodId)}}
+              style={{width: 200}}
             >
               <Meta
                 title={price.goodName}

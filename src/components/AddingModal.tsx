@@ -13,7 +13,7 @@ const { Title } = Typography;
 export default function AddingModal() {
   const [open, setOpen] = useState(false);
   const [uploading, setuploading] = useState(false);
-  const [tab, setTab] = useState('');
+  const [tab, setTab] = useState('product');
 
   const { data: session, status } = useSession();
   const [messageApi, contextHolder] = message.useMessage();
@@ -36,12 +36,11 @@ export default function AddingModal() {
     } else {
       form = priceForm;
     }
-    
+
     form
       .validateFields()
       .then(async (formData) => {
         setuploading(true);
-
         if (tab === 'product') {
           await addProduct(formData, session?.user);
         } else {
@@ -53,24 +52,22 @@ export default function AddingModal() {
           type: 'success',
           content: '등록 완료',
         });
-        
-        if (tab === 'price') {
-          /* TODO:  브라우저에 환경 변수를 노출시키면 캡슐화 의미가 없어진다 */
-          // await하지 않고 백그라운드로 수행
-          fetch('/api/revalidate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({  
-              secret: process.env.NEXT_PUBLIC_MY_SECRET_TOKEN,
-              goodId: form.getFieldValue('goodId')
-            })
-          }).then((response) => {
-            if (response.status === 200) {
-            }
-          });
-        }
+      
+        /* TODO:  브라우저에 환경 변수를 노출시키면 캡슐화 의미가 없어진다 */
+        // await하지 않고 백그라운드로 수행
+        fetch('/api/revalidate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({  
+            secret: process.env.NEXT_PUBLIC_MY_SECRET_TOKEN,
+            goodId: form.getFieldValue('goodId')
+          })
+        }).then((response) => {
+          if (response.status === 200) {
+          }
+        });
 
         setuploading(false);
         form.resetFields();
@@ -79,6 +76,7 @@ export default function AddingModal() {
       })
       .catch((reason) => {
         // TODO: 예외 처리
+        // firebase 할당량 초과로 등록 못 할 경우 고려
         messageApi.open({
           type: 'error',
           content: '등록 실패',
